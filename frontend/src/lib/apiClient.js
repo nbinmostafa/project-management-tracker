@@ -26,9 +26,7 @@ async function request(path, { method = "GET", body, headers = {}, getToken } = 
     try {
       const data = await res.json()
       if (data?.detail) message = Array.isArray(data.detail) ? data.detail.map((d) => d.msg || d).join(", ") : data.detail
-    } catch {
-      // ignore parse errors
-    }
+    } catch {}
     const error = new Error(message)
     error.status = res.status
     throw error

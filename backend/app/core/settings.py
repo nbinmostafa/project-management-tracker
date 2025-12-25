@@ -18,29 +18,7 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: List[str] = []
 
-    @field_validator("DATABASE_URL", mode="before")
-    @classmethod
-    def normalize_db_url(cls, v):
-        if not v:
-            return ""
-        s = str(v).strip().strip('"').strip("'")
-        if s.startswith("postgres://"):
-            s = s.replace("postgres://", "postgresql+psycopg://", 1)
-        return s
-
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors(cls, v):
-        if v is None:
-            return []
-        if isinstance(v, list):
-            return v
-        s = str(v).strip()
-        if not s:
-            return []
-        if s.startswith("["):
-            return json.loads(s)
-        return [x.strip() for x in s.split(",") if x.strip()]
+    
 
 settings = Settings()
 

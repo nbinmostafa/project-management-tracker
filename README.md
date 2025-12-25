@@ -1,99 +1,128 @@
-# Project Management Tracker
+# ProjectTracker
 
-A backend service for managing projects and tasks, designed with a focus on clean architecture, data integrity, and production-ready API design.  
-🧩 Built to reflect how internal tools are structured and maintained in professional software environments.
-
----
-
-## Overview
-
-The Project Management Tracker provides a RESTful API that enables users to create projects and manage tasks associated with them. Tasks include structured metadata such as status, priority, and deadlines, allowing for clear progress tracking and extensible workflow logic.
-
-The application follows a backend-first approach and is intentionally designed to support future additions such as authentication, authorization, and a frontend client without requiring architectural changes.
+ProjectTracker is a **Clerk-authenticated project & task management system** for teams. It provides **Project CRUD**, a **Kanban workflow** with persisted drag-and-drop status updates, and **dashboard insights**, backed by a **FastAPI + PostgreSQL** API and a **Vite + React** frontend.
 
 ---
 
-<details>
-<summary><strong>Application Features</strong></summary>
+## Highlights
 
-### Project Management
-- Designed a project entity to act as the top-level organizational boundary  
-- Implemented full lifecycle management (create, read, update, delete)  
-- Structured to support future ownership, permissions, and multi-user access  
-
-### Task Management
-- Modeled tasks as relational entities linked to projects via foreign keys  
-- Implemented task attributes including status, priority, and deadlines  
-- Enforced data integrity through schema validation and database constraints  
-- Designed task state to remain consistent across updates and deletions  
-
-### API Layer
-- Designed RESTful endpoints with predictable behavior and naming conventions  
-- Implemented versioned routing to support backward-compatible changes  
-- Used explicit request and response schemas to enforce correctness  
-- Ensured clear separation between routing, business logic, and persistence  
-
-</details>
+- **Clerk authentication** with JWT validation on every API request
+- **Owner-scoped multi-tenant data model** (projects/tasks scoped by `owner_id`)
+- **Kanban board** with drag-and-drop status changes persisted to the API
+- **Dashboard** with live stats + recent activity
+- **Project-aware task cards** (resolve project names via API)
+- **Health endpoint** for uptime monitoring
 
 ---
 
-<details>
-<summary><strong>Architecture & Engineering Approach</strong></summary>
+## Tech Stack
 
-- Modular project structure separating routes, schemas, models, and database logic  
-- Relational data modeling using SQLAlchemy 2.x ORM patterns  
-- Validation-first development using Pydantic to prevent invalid state  
-- Automated testing to verify core behavior and database interactions  
-- Containerized setup to ensure consistent local and deployment environments  
+### Frontend
+- React 18 (Vite)
+- React Router
+- Clerk React
+- TanStack Query
+- DnD Kit
 
-</details>
+### Backend
+- FastAPI
+- SQLAlchemy ORM
+- Alembic migrations
+- Pydantic
+- psycopg (PostgreSQL)
 
----
-
-<details>
-<summary><strong>Technology Stack</strong></summary>
-
-- **FastAPI** — high-performance API framework with strong typing  
-- **PostgreSQL** — relational database for structured persistence  
-- **SQLAlchemy (2.x)** — ORM for database interactions  
-- **Pydantic** — schema validation and serialization  
-- **Pytest** — automated testing framework  
-- **Docker** — containerization for consistent environments  
-
-</details>
+### Infrastructure
+- PostgreSQL
+- Backend default base URL (prod): `https://project-management-tracker-production.up.railway.app`
 
 ---
 
-<details>
-<summary><strong>Testing</strong></summary>
+## Architecture
 
-- Unit and integration tests covering core API behavior  
-- Database operations tested independently of the API layer  
-- Enables confident refactoring and future feature expansion  
+**Frontend (SPA)**  
+- Uses `ClerkProvider` and `getToken()` to obtain a Clerk JWT.
+- API client attaches `Authorization: Bearer <token>` to every request.
+- Calls REST resources for projects/tasks and dashboard stats.
 
-</details>
+**Backend (FastAPI)**  
+- Verifies Clerk-issued JWTs using Clerk **JWKS** + **Issuer** (and optional **Audience**).
+- Enforces authentication via `HTTPBearer`.
+- Scopes all queries by the validated `owner_id`.
+- Returns `404` for non-owned resources to prevent tenant enumeration.
 
----
-
-<details>
-<summary><strong>Future Improvements</strong></summary>
-
-- Authentication and authorization (OAuth / JWT)  
-- Role-based access control for project and task ownership  
-- Frontend client integration  
-- Cloud deployment with managed database services  
-- Activity logging and audit trails  
-
-</details>
+**Database (PostgreSQL)**  
+- Projects and tasks are stored in Postgres.
+- Migrations managed with Alembic.
 
 ---
 
-## Purpose
+## Core Features
 
-This project was built to demonstrate practical backend engineering skills, including relational data modeling, API design, and maintainable system architecture, aligned with expectations for modern software engineering roles.
+### Authentication & Security
+- Clerk-based authentication and server-side JWT validation
+- Owner-scoped queries (`owner_id`) for projects and tasks
+- Cross-tenant requests fail safely (resource returns `404`)
+- CORS restricted by environment configuration
+
+### Projects
+- Create, list, update, delete
+- Each project includes:
+  - `name`, `description`
+  - `created_at`, `updated_at`
+  - `owner_id`
+
+### Tasks
+- Create/list tasks under a project
+- Update task status (Kanban), priority, deadline
+- Each task includes:
+  - `title`
+  - `status`: `not_started | in_progress | done`
+  - `priority`: `low | medium | high | urgent`
+  - optional `deadline`
+  - `created_at`, `updated_at`
+  - `owner_id`
 
 ---
 
-## License
+## API Overview
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+> All endpoints (except `/health` if you choose) require:
+> `Authorization: Bearer <Clerk JWT>`
+
+- `GET /health` — service health probe
+- `GET /projects` — list projects (owner-scoped)
+- `POST /projects` — create project
+- `GET /projects/{project_id}` — get project (owner-scoped)
+- `PATCH /projects/{project_id}` — update project (owner-scoped)
+- `DELETE /projects/{project_id}` — delete project (owner-scoped)
+
+- `GET /projects/{project_id}/tasks` — list tasks for a project (owner-scoped)
+- `POST /projects/{project_id}/tasks` — create task under a project (owner-scoped)
+
+- `GET /tasks/{task_id}` — get task (owner-scoped)
+- `PATCH /tasks/{task_id}` — update task (owner-scoped)
+- `DELETE /tasks/{task_id}` — delete task (owner-scoped)
+
+---
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+Required:
+- `DATABASE_URL` — Postgres connection string
+- `CLERK_ISSUER` — Clerk issuer URL for your instance
+- `CLERK_JWKS_URL` — JWKS endpoint for JWT verification
+- `CORS_ORIGINS` — allowed origins (JSON array string)
+
+Optional:
+- `CLERK_AUDIENCE` — set if you validate `aud` claim
+
+Example:
+```env
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:5432/DBNAME
+
+CLERK_ISSUER=https://YOUR-CLERK-INSTANCE.clerk.accounts
+CLERK_JWKS_URL=https://YOUR-CLERK-INSTANCE.clerk.accounts/.well-known/jwks.json
+CLERK_AUDIENCE=
+
+CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]

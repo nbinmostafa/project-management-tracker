@@ -11,7 +11,7 @@ function DebugApi() {
     setStatus("loading")
     setMessage("")
     try {
-      const data = await apiClient.get("/health", { getToken })
+      const data = await apiClient.get("/health")
       setStatus("success")
       setMessage(JSON.stringify(data))
     } catch (err) {

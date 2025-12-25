@@ -3,7 +3,7 @@ import { apiClient } from "../lib/apiClient"
 const statusLabels = {
   not_started: "Not Started",
   in_progress: "In Progress",
-  completed: "Completed",
+  done: "Completed",
 }
 
 const buildQuery = (params = {}) => {
@@ -26,11 +26,9 @@ export const api = {
         const res = await apiClient.get(`/projects/${proj.id}/tasks`, { getToken })
         const items = Array.isArray(res) ? res : res?.items || []
         tasks = tasks.concat(items || [])
-      } catch {
-        // ignore failed project task fetch
-      }
+      } catch {}
     }
-    const completed = tasks.filter((t) => t.status === "completed" || t.status === "done").length
+    const completed = tasks.filter((t) => t.status === "done").length
     const inProgress = tasks.filter((t) => t.status === "in_progress").length
     return {
       stats: [
@@ -49,14 +47,13 @@ export const api = {
     }
   },
 
-  // Projects
   getProjects: (getToken) => apiClient.get("/projects", { getToken }),
   getProject: (projectId, getToken) => apiClient.get(`/projects/${projectId}`, { getToken }),
+  getProjectById: (projectId, getToken) => apiClient.get(`/projects/${projectId}`, { getToken }),
   createProject: (payload, getToken) => apiClient.post("/projects", payload, { getToken }),
   updateProject: (projectId, payload, getToken) => apiClient.put(`/projects/${projectId}`, payload, { getToken }),
   deleteProject: (projectId, getToken) => apiClient.delete(`/projects/${projectId}`, { getToken }),
 
-  // Tasks
   listTasksByProject: async (projectId, params = {}, getToken) => {
     const res = await apiClient.get(`/projects/${projectId}/tasks${buildQuery(params)}`, { getToken })
     if (Array.isArray(res)) {
@@ -80,9 +77,7 @@ export const api = {
       try {
         const t = await api.listTasksByProject(proj.id, {}, getToken)
         all.push(...(t.items || []))
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
     return all
   },

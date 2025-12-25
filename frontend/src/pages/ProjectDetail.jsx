@@ -7,7 +7,7 @@ import { api } from "../services/api"
 const statusOptions = [
   { value: "not_started", label: "Not Started" },
   { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
+  { value: "done", label: "Completed" },
 ]
 
 const priorityOptions = [
@@ -108,7 +108,7 @@ function ProjectDetail() {
       title: taskForm.title.trim(),
       status: taskForm.status,
       priority: taskForm.priority,
-      deadline: taskForm.deadline ? taskForm.deadline : null,
+      deadline: taskForm.deadline ? new Date(taskForm.deadline).toISOString() : null,
     }
     try {
       if (taskMode === "edit" && activeTaskId) {
@@ -144,7 +144,7 @@ function ProjectDetail() {
   const friendlyStatus = (status) => {
     if (status === "not_started") return "Not Started"
     if (status === "in_progress") return "In Progress"
-    if (status === "completed") return "Completed"
+    if (status === "done") return "Completed"
     return status
   }
 
@@ -409,6 +409,12 @@ function ProjectDetail() {
                 <input
                   type="date"
                   value={taskForm.deadline || ""}
+                  placeholder="YYYY-MM-DD"
+                  pattern="\d{4}-\d{2}-\d{2}"
+                  inputMode="numeric"
+                  title="Use YYYY-MM-DD"
+                  onFocus={(e) => e.target.showPicker && e.target.showPicker()}
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                   onChange={(e) => setTaskForm((prev) => ({ ...prev, deadline: e.target.value }))}
                 />
               </label>
@@ -444,7 +450,7 @@ function KanbanBoard({ tasks, onEdit, onDelete, onStatusChange }) {
   const columns = [
     { key: "not_started", title: "Not started" },
     { key: "in_progress", title: "In progress" },
-    { key: "completed", title: "Completed" },
+    { key: "done", title: "Completed" },
   ]
 
   return (
@@ -496,7 +502,7 @@ function KanbanCard({ task, onEdit, onDelete }) {
   const friendlyPriority = (p) => (p === "high" ? "High" : p === "low" ? "Low" : "Medium")
   const friendlyStatus = (s) => {
     if (s === "in_progress") return "In progress"
-    if (s === "completed") return "Completed"
+    if (s === "done") return "Completed"
     return "Not started"
   }
 
