@@ -3,6 +3,9 @@
 ProjectTracker is a **Clerk-authenticated project & task management system** for teams. It provides **Project CRUD**, a **Kanban workflow** with persisted drag-and-drop status updates, and **dashboard insights**, backed by a **FastAPI + PostgreSQL** API and a **Vite + React** frontend.
 
 ---
+**Live Demo:**  
+👉 [View the live application](https://project-management-tracker.vercel.app)
+---
 
 ## Highlights
 
