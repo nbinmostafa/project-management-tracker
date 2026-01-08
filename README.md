@@ -19,11 +19,15 @@ ProjectTracker is a **Clerk-authenticated project & task management system** for
 ---
 # Preview
 - **Dashboard:**
-<img width="1918" height="866" alt="demo" src="https://github.com/user-attachments/assets/97d62f1a-c98c-46ed-a138-114c4ce2f27f" />
-- **Project/Tasks Hub:** 
-<img width="1918" height="855" alt="demo2" src="https://github.com/user-attachments/assets/757cc086-f193-40e6-aa18-a51d7e13476d" />
+  <img width="1918" height="866" alt="demo" src="https://github.com/user-attachments/assets/97d62f1a-c98c-46ed-a138-114c4ce2f27f" />
+- **Project/Tasks Hub:**
+  <img width="1918" height="855" alt="demo2" src="https://github.com/user-attachments/assets/757cc086-f193-40e6-aa18-a51d7e13476d" />
 - **Kaban View:**
-<img width="1918" height="863" alt="demo3" src="https://github.com/user-attachments/assets/98bb47d4-56d4-4ec1-b6ec-f3e4b23501c3" />
+  <img width="1918" height="863" alt="demo3" src="https://github.com/user-attachments/assets/98bb47d4-56d4-4ec1-b6ec-f3e4b23501c3" />
+
+
+
+
 
 ---
 
